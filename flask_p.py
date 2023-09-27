@@ -1,14 +1,11 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 skills_app = Flask(__name__)
 
-pets = [
-            {"id": 1, "name": "Nelly", "age": "5 weeks", "bio": "I am a tiny kitten rescued by the good people at Paws Rescue Center. I love squeaky toys and cuddles."},
-            {"id": 2, "name": "Yuki", "age": "8 months", "bio": "I am a handsome gentle-cat. I like to dress up in bow ties."},
-            {"id": 3, "name": "Basker", "age": "1 year", "bio": "I love barking. But, I love my friends more."},
-            {"id": 4, "name": "Mr. Furrkins", "age": "5 years", "bio": "Probably napping."}, 
-        ]
-
+users2 = {
+    "archie.andrews@email.com": "football4life",
+    "veronica.lodge@email.com": "fashiondiva"
+}
 @skills_app.route("/")
 def home():
     Users = {
@@ -31,9 +28,26 @@ def basie():
 @skills_app.route("/profile")
 def profile():
     return render_template("profile.html", t="Profile", css_file="Home")
+
+@skills_app.route("/login", methods =["GET","POST"])
+def login():
+    if request.method == "POST":
+        email = request.form["email"]
+        password =request.form["password"]
+        if email in users2 and users2[email] == password:
+            return render_template("login.html", t="Login", css_file="Login", message ="Successfully Logged In")
+        return render_template("login.html", t="Login", css_file="Login", message ="Incorrect Email or Password")
+    return render_template("Login.html", t="Login", css_file="Login")
 """
 @skills_app.route("/details/<int:pet_id>")
 def pet_details(pet_id):
+pets = [
+            {"id": 1, "name": "Nelly", "age": "5 weeks", "bio": "I am a tiny kitten rescued by the good people at Paws Rescue Center. I love squeaky toys and cuddles."},
+            {"id": 2, "name": "Yuki", "age": "8 months", "bio": "I am a handsome gentle-cat. I like to dress up in bow ties."},
+            {"id": 3, "name": "Basker", "age": "1 year", "bio": "I love barking. But, I love my friends more."},
+            {"id": 4, "name": "Mr. Furrkins", "age": "5 years", "bio": "Probably napping."}, 
+        ]
+
     #View function for Showing Details of Each Pet. 
     pet = next((pet for pet in pets if pet["id"] == pet_id), None) 
     if pet is None: 
