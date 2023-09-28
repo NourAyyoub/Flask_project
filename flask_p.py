@@ -1,17 +1,18 @@
 from flask import Flask, render_template, request
 from forms import LoginForm, SignUpForm
+from flask import session, redirect, url_for
 
 skills_app = Flask(__name__)
 skills_app.config['SECRET_KEY'] = 'dfewfew123213rwdsgert34tgfd1234trgf'
-users = {
+users3 = {
     "archie.andrews@email.com": "football4life",
     "veronica.lodge@email.com": "fashiondiva"
 }
-users3 = [
-            {"id": 1, "full_name": "Pet Rescue Team", "email": "team@pawsrescue.co", "password": "adminpass"},
+users = [
+            {"id": 1, "full_name": "Pet Rescue Team", "email": "team@pawsrescue.com", "password": "adminpass"},
         ]
 @skills_app.route("/")
-def home():
+def homepage():
     Users2 = {
                 "Ayyoub":"Amsterdam", 
                 "Mohammed":"London", 
@@ -33,16 +34,16 @@ def basie():
 def profile():
     return render_template("profile.html", t="Profile", css_file="Home")
 
-@skills_app.route("/login", methods=["GET", "POST"])
+@skills_app.route("/login", methods=["POST", "GET"])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        for u_email, u_password in users.items():
-            if u_email == form.email.data and u_password == form.password.data:
-                return render_template("login.html", message ="Successfully Logged In")
-        return render_template("login.html", form = form, message ="Incorrect Email or Password")
-    elif form.errors:
-        print(form.errors.items())
+        user = next((user for user in users if user["email"] == form.email.data and user["password"] == form.password.data), None)
+        if user is None:
+            return render_template("login.html", form = form, message = "Wrong Credentials. Please Try Again.")
+        else:
+            session['user'] = user
+            return render_template("login.html", message = "Successfully Logged In!")
     return render_template("login.html", form = form)
 
     """  
@@ -94,8 +95,16 @@ def signup():
     if form.validate_on_submit():
         new_user = {"id": len(users3)+1, "full_name": form.full_name.data, "email": form.email.data, "password": form.password.data}
         users3.append(new_user)
-        return render_template("signup.html", message = "Successfully signed up")
-    return render_template("signup.html", form = form)
+        return render_template("Signup.html", message = "Successfully signed up")
+    return render_template("Signup.html", form = form)
+
+@skills_app.route("/logout")
+def logout():
+    if 'user' in session:
+        session.pop('user')
+    return redirect(url_for('homepage'))#return redirect(url_for('homepage', _scheme='https', _external=True))
+
+ 
 
 if __name__ == "__main__":
     skills_app.run(debug=True, host="0.0.0.0", port=3000)
